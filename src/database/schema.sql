@@ -36,5 +36,12 @@ CREATE INDEX idx_permissions_user_id ON permissions(user_id);
 CREATE INDEX idx_permissions_application_id ON permissions(application_id);
 
 -- Insert default admin user (password: admin123)
+-- Note: This is a bcrypt hash of 'admin123'
 INSERT INTO users (name, email, password, role, is_active)
-VALUES ('Admin User', 'admin@example.com', '$2b$10$YourHashedPasswordHere', 'admin', true); 
+VALUES (
+    'Admin User',
+    'admin@example.com',
+    '$2b$10$H0yyG85qCaYyqSlqTUpBbuJk44vP.8fBLtRUB9t02kGJ6xmGndedq',
+    'admin',
+    true
+); 
