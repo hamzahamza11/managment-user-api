@@ -1,44 +1,42 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
+import { PermissionsService } from '../permissions/permissions.service';
+import { ApplicationsService } from '../applications/applications.service';
 
-async function createUser() {
-  const app = await NestFactory.create(AppModule);
-  console.log('Application started');
+async function bootstrap() {
+  const app = await NestFactory.createApplicationContext(AppModule);
+  const usersService = app.get(UsersService);
+  const permissionsService = app.get(PermissionsService);
+  const applicationsService = app.get(ApplicationsService);
 
   try {
-    const usersService = app.get(UsersService);
-    console.log('UsersService initialized');
+    // Create user
+    const user = await usersService.create({
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'test123'
+    });
 
-    // Test data
-    const name = 'Test User';
-    const email = 'test@example.com';
-    const password = 'test123';
-    const role = 'viewer';
+    // Get management app
+    const managementApp = await applicationsService.findOne('management_app');
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('Password hashed');
+    // Create permission
+    await permissionsService.create({
+      userId: user.id,
+      applicationId: managementApp.id,
+      permissionType: 'viewer'
+    });
 
-    // Create the user
-    console.log(`Creating user with email: ${email}`);
-    const user = await usersService.create(
-      email,
-      hashedPassword,
-      role,
-      name
-    );
-    
-    console.log('User created successfully:');
-    console.log(`ID: ${user.id}, Name: ${user.name}, Email: ${user.email}, Role: ${user.role}`);
-    
+    console.log(`User created successfully:`);
+    console.log(`ID: ${user.id}, Name: ${user.name}, Email: ${user.email}`);
+    console.log(`Permission: viewer for management_app`);
+
   } catch (error) {
-    console.error('Error creating user:', error.message);
-    console.error(error.stack);
+    console.error('Error:', error.message);
   } finally {
     await app.close();
   }
 }
 
-createUser(); 
+bootstrap(); 

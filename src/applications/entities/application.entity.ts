@@ -1,24 +1,18 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Permission } from '../../permissions/entities/permission.entity';
 
-@Entity('users')
-export class User {
+@Entity('applications')
+export class Application {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: false })
   name: string;
 
-  @Column({ unique: true })
-  email: string;
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
-  @Column()
-  password: string;
-
-  @Column({ default: true })
-  is_active: boolean;
-
-  @OneToMany(() => Permission, permission => permission.user)
+  @OneToMany(() => Permission, permission => permission.application)
   permissions: Permission[];
 
   @CreateDateColumn()
